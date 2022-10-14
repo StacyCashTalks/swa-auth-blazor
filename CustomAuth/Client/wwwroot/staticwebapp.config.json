@@ -1,0 +1,45 @@
+{
+  "auth": {
+    "rolesSource": "/api/GetRoles",
+    "identityProviders": {
+      "customOpenIdConnectProviders": {
+        "auth0": {
+          "registration": {
+            "clientIdSettingName": "AUTH0_ID",
+            "clientCredential": {
+              "clientSecretSettingName": "AUTH0_SECRET"
+            },
+            "openIdConnectConfiguration": {
+              "wellKnownOpenIdConfiguration": "https://<your auth0 account>.eu.auth0.com/.well-known/openid-configuration"
+            }
+          },
+          "login": {
+            "nameClaimType": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+            "scopes": [ "openid", "profile" ]
+          }
+        }
+      }
+    }
+  },
+  "routes": [
+    {
+      "route": "/api/todos",
+      "methods": [
+        "POST",
+        "PUT",
+        "DELETE"
+      ],
+      "allowedRoles": [
+        "authorised"
+      ]
+    },
+    {
+      "route": "/.auth/login/google",
+      "statusCode": 404
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [ "/images/*.{png,jpg,gif}", "/css/*" ]
+  }
+}

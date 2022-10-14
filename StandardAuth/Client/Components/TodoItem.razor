@@ -1,0 +1,48 @@
+﻿@inject TodoService _todoService
+
+@if (editMode)
+{
+    <div>
+        <input type="text" class="edit-label" @bind="@Todo!.Label" />
+        <span class="pointer" @onclick="ToggleEditMode">&#128190;</span>
+    </div>
+}
+else
+{
+    <label class="container">
+        <span class="@(Todo!.Complete ? "complete" : string.Empty)">@Todo!.Label</span>
+        <span @onclick="ToggleEditMode">🖋</span>
+        <input type="checkbox" @onclick="StateChange" checked="@Todo!.Complete">
+        <span class="checkmark"></span>
+    </label>
+}
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public Todo? Todo { get; set; }
+
+    private bool editMode = false;
+
+    private async void StateChange()
+    {
+        Todo!.Complete = !Todo.Complete;
+        await _todoService.UpdateTodo(Todo);
+    }
+
+    private async Task ToggleEditMode()
+    {
+        if (editMode)
+        {
+            if (string.IsNullOrWhiteSpace(Todo!.Label))
+            {
+                return;
+            }
+
+            await _todoService.UpdateTodo(Todo);
+        }
+
+        editMode = !editMode;
+    }
+}
+

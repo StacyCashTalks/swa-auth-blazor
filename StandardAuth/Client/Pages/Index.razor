@@ -1,0 +1,42 @@
+﻿@page "/"
+@inject TodoService _todoService
+
+<PageTitle>Todos</PageTitle>
+
+<h1>Here are your todos!</h1>
+
+@if (_todoService.Todos is null)
+{
+    <div>Loading...</div>
+}
+else
+{
+    <input type="text" @bind="_newTodo" class="edit-label" />
+    <span class="pointer" @onclick="AddTodo">&#128190;</span>
+    foreach (var todo in _todoService.Todos)
+    {
+        
+            <TodoItem Todo="@todo" />
+        
+    }
+}
+
+@code
+{
+    private string _newTodo = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await _todoService.LoadTodos();
+    }
+
+    private async Task AddTodo()
+    {
+        if (string.IsNullOrWhiteSpace(_newTodo))
+        {
+            return;
+        }
+
+        await _todoService.AddTodo(new Todo { Label = _newTodo });
+        _newTodo = string.Empty;
+    }
+}
