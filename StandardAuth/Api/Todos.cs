@@ -15,7 +15,7 @@ namespace Api
             CosmosClient client,
             ILogger log)
         {
-            var containerClient = GetCosmosContainerClient(client);
+            var containerClient = await GetCosmosContainerClient(client);
             ClientPrincipal clientPrincipal =
                 StaticWebAppApiAuthorization
                     .ParseHttpHeaderForClientPrinciple(request.Headers);
@@ -66,7 +66,7 @@ namespace Api
                 userId = clientPrincipal.UserId
             };
 
-            var containerClient = GetCosmosContainerClient(client);
+            var containerClient = await GetCosmosContainerClient(client);
             await containerClient.CreateItemAsync<dynamic>(savedTodoPost);
 
             return new OkObjectResult(todo);
@@ -96,7 +96,7 @@ namespace Api
                 .WithParameter("@userId", clientPrincipal.UserId)
                 .WithParameter("id", todo.Id.ToString());
 
-            var containerClient = GetCosmosContainerClient(client);
+            var containerClient = await GetCosmosContainerClient(client);
             var todosIterator = containerClient.GetItemQueryIterator<Todo>(query, null, new QueryRequestOptions());
 
             if (!todosIterator.HasMoreResults)
@@ -115,7 +115,7 @@ namespace Api
             return new OkResult();
         }
 
-        private static Container GetCosmosContainerClient(CosmosClient client)
+        private static async Task<Container> GetCosmosContainerClient(CosmosClient client)
         {
             var environmentVariables = Environment.GetEnvironmentVariables();
 
@@ -131,6 +131,9 @@ namespace Api
 
             var databaseName = (string)environmentVariables["TodoDBName"];
             var databaseContainer = (string)environmentVariables["TodoDBContainer"];
+
+            await client.CreateDatabaseIfNotExistsAsync(databaseName);
+            await client.GetDatabase(databaseName).CreateContainerIfNotExistsAsync(databaseContainer, "/userId");
 
             var containerClient = client.GetContainer(databaseName, databaseContainer);
             return containerClient;
