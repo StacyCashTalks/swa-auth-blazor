@@ -1,7 +1,7 @@
 {
     "configurations": {
       "run-all": {
-        "appDevserverUrl": "https://localhost:5000",
+        "appDevserverUrl": "http://localhost:5001",
         "apiLocation": "./api",
         "run": "dotnet watch run --project ./client"
       }
